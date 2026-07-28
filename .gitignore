@@ -7,3 +7,7 @@ venv/
 .pytest_cache/
 .vscode/
 .idea/
+
+# Separate git repo (own history + remote) — commit/push it independently
+# from inside marble-palace-checkin/, not from this repo.
+marble-palace-checkin/
