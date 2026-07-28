@@ -2,6 +2,7 @@
 
 FastAPI + PostgreSQL backend for a showroom visitor sign-in tablet and an admin dashboard for reviewing/exporting visits.
 
+
 ## Stack
 
 - FastAPI (async)
