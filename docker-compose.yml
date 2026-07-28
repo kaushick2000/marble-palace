@@ -1,0 +1,45 @@
+# Local development only. Coolify/production deployments should NOT use this file —
+# see the "Coolify deployment" section in the README.
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: marble
+      POSTGRES_PASSWORD: marble
+      POSTGRES_DB: marble_palace
+    ports:
+      - "5544:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U marble -d marble_palace"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    environment:
+      DATABASE_URL: postgresql+asyncpg://marble:marble@db:5432/marble_palace
+      SESSION_TOKEN_EXPIRE_MINUTES: "480"
+      JWT_SECRET_KEY: change-me-to-a-long-random-string
+      JWT_ALGORITHM: HS256
+      JWT_EXPIRE_MINUTES: "60"
+      CORS_ORIGINS: http://localhost:3000,http://localhost:5173
+      ADMIN_SETUP_SECRET: change-me
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./app:/app/app
+      - ./alembic:/app/alembic
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
